@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class PersonService {
@@ -20,13 +18,16 @@ public class PersonService {
         this.personRepository = personRepository;
     }
 
-    public List<Person> getPersons(){
-        return fetchPersons();
+    public List<Person> getPersons(String firstName){
+        if(firstName != null && !firstName.isBlank()){
+            return personRepository.findAllByFirstName(firstName);
+        }
+        return personRepository.findAll();
     }
 
-    public Person fetchPersonById(Long id){
-        Optional<Person> person = personRepository.findById(id);
-        return person.get();
+    public PersonResponse getPersonById(Long id){
+        Person person = personRepository.findById(id).get();
+        return convertPersonToPersonResponse(person);
     }
 
     public Person createPerson(PersonRequest request) {
@@ -34,24 +35,24 @@ public class PersonService {
         return personRepository.save(person);
     }
 
-    private List<Person> fetchPersons(){
-        return personRepository.findAll();
-    }
-
     private PersonResponse convertPersonToPersonResponse(Person person){
         return person == null
                 ? null
-                : new PersonResponse(person.getFirstName(), person.getLastName(), person.getEmail(), person.getPhone());
+                : new PersonResponse(person.getFirstName(),
+                                     person.getLastName(),
+                                     person.getEmail(),
+                                     person.getPhone());
     }
 
     private Person convertPersonRequestToPerson(PersonRequest request){
         return request == null
                 ? null
                 : Person.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .phone(request.getPhone())
-                .build();
+                        .firstName(request.getFirstName())
+                        .lastName(request.getLastName())
+                        .email(request.getEmail())
+                        .phone(request.getPhone())
+                        .build();
     }
+
 }

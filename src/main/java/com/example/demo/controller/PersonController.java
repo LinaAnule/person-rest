@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/persons")
-@Tag(name="Person Controller", description = "Provides service with person data")
+@Tag(name = "Person Controller", description = "Provides service with person data")
 public class PersonController {
 
     private final PersonService personService;
@@ -24,21 +24,32 @@ public class PersonController {
         this.personService = personService;
     }
 
-    @GetMapping()
+    @GetMapping
     @Operation(summary = "Get person Data")
-    public List<Person> getPersons(@RequestParam(required = false) String firstName){
+    public List<PersonResponse> getPersons(@RequestParam(required = false) String firstName) {
         return personService.getPersons(firstName);
     }
 
     @GetMapping(value = "/{id}")
-    public PersonResponse getPersonById(@PathVariable Long id){
+    public PersonResponse getPersonById(@PathVariable Long id) {
         return personService.getPersonById(id);
     }
 
-    @PostMapping()
+    @PostMapping
     @Operation(summary = "Save person data")
-    public Person savePerson(@Validated @RequestBody PersonRequest personRequest){
+    public PersonResponse savePerson(@Validated @RequestBody PersonRequest personRequest) {
         return personService.createPerson(personRequest);
     }
 
+    @PutMapping(value = "/{id}")
+    @Operation(summary = "Change person data")
+    public PersonResponse updatePerson(@Validated @RequestBody PersonRequest personRequest, @PathVariable Long id) {
+        return personService.updatePerson(personRequest, id);
+    }
+
+    @DeleteMapping(value = "/{id}")
+    @Operation(summary = "Delete person")
+    public void deletePerson(@PathVariable Long id) {
+        personService.deletePerson(id);
+    }
 }
